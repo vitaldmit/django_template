@@ -92,12 +92,7 @@ echo "$user = $password " >> .users && cat .users
 useradd -c "$user" -s /bin/bash -m -U "$user"
 echo "$user":"$password" | chpasswd
 
-<<<<<<< HEAD
 sudo usermod -aG docker $user
-=======
-# Если надо будет перейти к какому-либо пользователю
-# su - "<USER_NAME>"
->>>>>>> c4ef18a3d5dd5dfd77b66394450d9142c9128e07
 
 # Если надо будет удалить пользователя в будущем
 # userdel -r "<USER_NAME>"
