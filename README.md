@@ -22,14 +22,15 @@ python -m pip install --upgrade pip
 
 ### Клонируем текущий репозиторий
 ```bash
-# !!! Внимание !!! история коммитов сохраняется. Надо найти другой путь
 git clone https://github.com/vitaldmit/django_template.git src
 cd src
-```
-
-#### Адрес меняем на свой
-```bash
-git remote set-url origin "<YOUR_REPOSITORY>"
+# Начинаем с чистого листа
+rm -rf .git
+git add --all
+git commit -m "Initial commit"
+git branch -M main
+# Адрес меняем на свой
+git remote add origin git@github.com:vitaldmit/$PROJECT_NAME.git
 ```
 
 ### Устанавливаем настраиваем Django
@@ -37,7 +38,6 @@ git remote set-url origin "<YOUR_REPOSITORY>"
 pip install -r requirements.txt
 # Может project или "$PROJECT_NAME_project"?
 django-admin startproject $PROJECT_NAME .
-
 python manage.py migrate
 python manage.py createsuperuser
 ```
@@ -64,7 +64,7 @@ apt update && apt upgrade -y
 
 # Устанавливаем необходимые пакеты
 # От пользователя можно перейти в root командой `su -`
-apt install git python3 python3-pip python3-venv -y
+apt install git python3 python3-pip python3-venv docker docker-compose -y
 
 # Настраиваем ssh
 # Меняем порт на 22222 или любой другой
@@ -85,6 +85,8 @@ echo "$user = $password " >> .users && cat .users
 # -c "comment", -s "shell", -m "create the user's home directory" -U "create a group with the same name as the user", 
 useradd -c "$user" -s /bin/bash -m -U "$user"
 echo "$user":"$password" | chpasswd
+
+sudo usermod -aG docker $user
 
 # Если надо будет удалить пользователя в будущем
 # userdel -r "<USER_NAME>"
