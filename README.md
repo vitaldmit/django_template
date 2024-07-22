@@ -11,14 +11,16 @@
 PROJECT_NAME="test_project"
 ```
 
+
 ### Подгатавливаем локальное рабочее окружение
 ```bash
-mkdir ~/dev; cd ~/dev
+# Переходим в нужную диекторию
 python -m venv $PROJECT_NAME
 cd $PROJECT_NAME
 . bin/activate
 python -m pip install --upgrade pip
 ```
+
 
 ### Клонируем текущий репозиторий
 ```bash
@@ -33,7 +35,7 @@ git branch -M main
 git remote add origin git@github.com:vitaldmit/$PROJECT_NAME.git
 ```
 
-### Устанавливаем настраиваем Django
+### Устанавливаем, настраиваем Django
 ```bash
 pip install -r requirements.txt
 # Может project или "$PROJECT_NAME_project"?
@@ -42,10 +44,6 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### Запускаем проект на локальном сервере
-```bash
-python manage.py runserver
-```
 
 ### Создаем базовое приложение
 ```bash
@@ -55,8 +53,13 @@ cd ..
 ```
 
 
+### Запускаем и далее разрабатываем проект
+```bash
+python manage.py runserver
+```
 
-## 5. Переходим на сервер. Настраиваем сервер. Делается один раз.
+
+## 5. Переходим на сервер. Настраиваем сервер.
 ### Первым делом настраиваем сервер. Под root'ом
 ```bash
 # Обновляем пакеты
@@ -67,15 +70,18 @@ apt update && apt upgrade -y
 apt install git python3 python3-pip python3-venv docker docker-compose -y
 
 # Настраиваем ssh
+nano /etc/ssh/sshd_config
 # Меняем порт на 22222 или любой другой
 # Добавляем ClientAliveInterval 30
-nano /etc/ssh/sshd_config
 systemctl restart sshd
+
+# Устанавливаем Nginx
+sudo apt install nginx
 ```
 
+### Создаем пользователя. Каждый проект это новый пользователь
 ```bash
-# Добавляем пользователя. Имя ему даем как название проекта
-# Каждый проект это новый пользователь
+# Имя ему даем как название проекта
 user="test_project"
 ```
 
@@ -86,15 +92,17 @@ echo "$user = $password " >> .users && cat .users
 useradd -c "$user" -s /bin/bash -m -U "$user"
 echo "$user":"$password" | chpasswd
 
+<<<<<<< HEAD
 sudo usermod -aG docker $user
+=======
+# Если надо будет перейти к какому-либо пользователю
+# su - "<USER_NAME>"
+>>>>>>> c4ef18a3d5dd5dfd77b66394450d9142c9128e07
 
 # Если надо будет удалить пользователя в будущем
 # userdel -r "<USER_NAME>"
 ```
 
-```bash
-# Устанавливаем программы для 
-```
 
 ### Логинимся под пользователем. Под user'ом
 ```bash
@@ -109,8 +117,14 @@ source .bashrc
 
 # Обновляем pip
 pip install -U pip
+```
 
+```bash
 # Клонируем репозиторий с проектом
 git clone "<YOUR_REPOSITORY>"
+```
+
+```bash
+# Директория для конфигов
 cd $PROJECT_NAME
 ```
