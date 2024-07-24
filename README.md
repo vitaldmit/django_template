@@ -92,7 +92,9 @@ echo "$user = $password " >> .users && cat .users
 useradd -c "$user" -s /bin/bash -m -U "$user"
 echo "$user":"$password" | chpasswd
 
-sudo usermod -aG docker $user
+# Добавляем пользователя в группу docker
+# чтобы мог работать с контейнерами
+sudo usermod -aG docker $user # Пока под вопросом
 
 # Если надо будет удалить пользователя в будущем
 # userdel -r "<USER_NAME>"
