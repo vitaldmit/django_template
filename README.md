@@ -5,14 +5,13 @@
 
 *Рекомендация. Название проекта, имя пользователя, название репозитория должны быть одними и теми же*
 
-## 1. Начало. Подготавливаем проект на локальном компьютере.
+## Начало. Подготавливаем проект на локальном компьютере.
 ### Первым делом определяемся с именем проекта
 ```bash
-PROJECT_NAME="test_project"
+PROJECT_NAME="test"
 ```
 
-
-### Подгатавливаем локальное рабочее окружение
+### Подгатавливаем локальное виртуальное окружение
 ```bash
 # Переходим в нужную диекторию
 python -m venv $PROJECT_NAME
@@ -20,7 +19,6 @@ cd $PROJECT_NAME
 . bin/activate
 python -m pip install --upgrade pip
 ```
-
 
 ### Клонируем текущий репозиторий
 ```bash
@@ -38,12 +36,10 @@ git remote add origin git@github.com:vitaldmit/$PROJECT_NAME.git
 ### Устанавливаем, настраиваем Django
 ```bash
 pip install -r requirements.txt
-# Может project или "$PROJECT_NAME_project"?
-django-admin startproject $PROJECT_NAME .
+django-admin startproject ${PROJECT_NAME}'_project' .
 python manage.py migrate
 python manage.py createsuperuser
 ```
-
 
 ### Создаем базовое приложение
 ```bash
@@ -52,14 +48,13 @@ python ../manage.py startapp base
 cd ..
 ```
 
-
-### Запускаем и далее разрабатываем проект
+### Запускаем
 ```bash
 python manage.py runserver
 ```
 
 
-## 5. Переходим на сервер. Настраиваем сервер.
+## Переходим на сервер.
 ### Первым делом настраиваем сервер. Под root'ом
 ```bash
 # Обновляем пакеты
@@ -72,7 +67,7 @@ apt install git python3 python3-pip python3-venv docker docker-compose -y
 # Настраиваем ssh
 nano /etc/ssh/sshd_config
 # Меняем порт на 22222 или любой другой
-# Добавляем ClientAliveInterval 30
+# Добавляем в конец файла ClientAliveInterval 30
 systemctl restart sshd
 
 # Устанавливаем Nginx
@@ -82,7 +77,7 @@ sudo apt install nginx
 ### Создаем пользователя. Каждый проект это новый пользователь
 ```bash
 # Имя ему даем как название проекта
-user="test_project"
+user=$PROJECT_NAME
 ```
 
 ```bash
@@ -109,19 +104,34 @@ python3 -m venv venv
 # Добавляем в конец файла .bashrc чтобы каждый раз при входе и выходе не набирать команды
 echo PROJECT_NAME=$(whoami) >> .bashrc
 echo "source ~/venv/bin/activate" >> .bashrc
-echo deactivate >> .bash_logout
+echo "deactivate" >> .bash_logout
 source .bashrc
 
 # Обновляем pip
-pip install -U pip
+python -m pip install --upgrade pip
 ```
 
 ```bash
-# Клонируем репозиторий с проектом
-git clone "<YOUR_REPOSITORY>"
+# Клонируем свой репозиторий с проектом
+git clone <YOUR_REPOSITORY> src
+cd src
 ```
 
 ```bash
 # Директория для конфигов
 cd $PROJECT_NAME
 ```
+
+
+## Структура проекта
+/home/$PROJECT_NAME/
+    |- venv/ # Виртуальное окружение
+    |- src/  # Исходники проекта
+        |- apps/
+        |- configs/
+        |- logs/
+        |- $PROJECT_NAME_project/
+        |- manage.py
+        |- requirements.txt
+        |- ...
+    |- ...
