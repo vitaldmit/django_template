@@ -43,6 +43,9 @@ python manage.py createsuperuser
 
 ### Создаем базовое приложение
 ```bash
+# Приложения будут храниться в `apps`.
+# Надо будет в `INSTALLED_APPS` и в файле `apps.py` 
+# приложения добавить префикс `apps.` перед именем приложения.
 mkdir apps; cd apps
 python ../manage.py startapp base
 cd ..
