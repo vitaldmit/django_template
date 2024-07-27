@@ -101,6 +101,7 @@ sudo usermod -aG docker $user # Пока под вопросом
 ```bash
 # Создаем и активируем виртуальное окружение
 python3 -m venv venv
+source ~/venv/bin/activate
 
 # Добавляем в конец файла .bashrc чтобы каждый раз при входе и выходе не набирать команды
 echo PROJECT_NAME=$(whoami) >> .bashrc
