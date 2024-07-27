@@ -66,15 +66,13 @@ apt update && apt upgrade -y
 # Устанавливаем необходимые пакеты
 # От пользователя можно перейти в root командой `su -`
 apt install git python3 python3-pip python3-venv docker docker-compose -y
+apt install nginx postgresql postgresql-contrib uwsgi gunicorn -y
 
 # Настраиваем ssh
 nano /etc/ssh/sshd_config
 # Меняем порт на 22222 или любой другой
 # Добавляем в конец файла ClientAliveInterval 30
 systemctl restart sshd
-
-# Устанавливаем Nginx
-sudo apt install nginx
 ```
 
 ### Создаем пользователя. Каждый проект это новый пользователь
