@@ -125,6 +125,7 @@ cd $PROJECT_NAME
 
 
 ## Структура проекта
+```
 /home/$PROJECT_NAME/
     |- venv/ # Виртуальное окружение
     |- src/  # Исходники проекта
@@ -136,3 +137,4 @@ cd $PROJECT_NAME
         |- requirements.txt
         |- ...
     |- ...
+```
