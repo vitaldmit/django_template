@@ -78,7 +78,7 @@ systemctl restart sshd
 ### Создаем пользователя. Каждый проект это новый пользователь
 ```bash
 # Имя ему даем как название проекта
-user=$PROJECT_NAME
+user=<PROJECT_NAME>
 ```
 
 ```bash
@@ -99,6 +99,7 @@ sudo usermod -aG docker $user # Пока под вопросом
 
 ### Логинимся под пользователем. Под user'ом
 ```bash
+su - $user
 # Создаем и активируем виртуальное окружение
 python3 -m venv venv
 source ~/venv/bin/activate
