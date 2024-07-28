@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    {{ main_content.site_title|default:"Django template" }}
+{% endblock %}
+
+{% block content %}
+    <header>
+        <h1>{{ main_content.site_title|default:"Welcome" }}</h1>
+        <img src="{{ main_content.logo_url|default:'#' }}" alt="logo" class="logo">
+    </header>
+    
+    <main>
+        <p>{{ main_content.description|default:"Django template" }}</p>
+        <p>Почта: {{ main_content.email|default:"test@mail.ru" }}</p>
+    </main>
+    
+    <footer>
+        <p>{{ main_content.footer_text|default:"© 2024 Created by vitaldmit" }}</p>
+    </footer>
+{% endblock %}
