@@ -23,6 +23,11 @@ python -m pip install --upgrade pip
 ```bash
 git clone https://github.com/vitaldmit/django_template.git src
 cd src
+
+# Заменяем django_template на имя проекта
+find -type f -exec sed -i -e 's#django_template_project#${PROJECT_NAME}"_project"#g' {} \;
+mv django_template_project ${PROJECT_NAME}'_project'
+
 # Удаляем лишнее
 rm contributors.md
 
