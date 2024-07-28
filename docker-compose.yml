@@ -1,0 +1,61 @@
+# Версия синтаксиса docker-compose
+version: '3'
+
+# Определение сервисов
+services:
+  # Сервис для Django приложения
+  web:
+    # Сборка образа из текущей директории
+    build: .
+    # Команда для запуска Django приложения через Gunicorn
+    command: >
+      sh -c "pip install -U pip
+      && python manage.py collectstatic --noinput
+      && python manage.py migrate
+      && gunicorn weather_project.wsgi:application --bind 0.0.0.0:8000"
+    # Монтирование локальной директории в контейнер
+    volumes:
+      - .:/app
+      - static_volume:/app/static_collected
+    # Открытие порта 8000 внутри Docker network
+    expose:
+      - 8000
+    # Загрузка переменных окружения из файла .env
+    env_file:
+      - .env
+    # Зависимость от сервиса базы данных
+    depends_on:
+      - db
+
+  # Сервис для базы данных PostgreSQL
+  db:
+    # Использование официального образа PostgreSQL
+    image: postgres:13
+    # Монтирование volume для сохранения данных
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # Загрузка переменных окружения из файла .env
+    env_file:
+      - .env
+
+  # Сервис для Nginx
+  nginx:
+    # Использование официального образа Nginx
+    image: nginx:latest
+    # Проброс порта 80 из контейнера на хост
+    ports:
+      - 80:80
+    # Монтирование конфигурационного файла Nginx и статических файлов
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/static_collected
+    # Зависимость от сервиса Django приложения
+    depends_on:
+      - web
+
+# Определение volumes
+volumes:
+  # Volume для хранения данных PostgreSQL
+  postgres_data:
+  # Volume для хранения статических файлов
+  static_volume:
