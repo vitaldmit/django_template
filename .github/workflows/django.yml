@@ -1,31 +1,46 @@
+# Название workflow
 name: Django CI
 
+# Определяет, когда будет запускаться этот workflow
 on:
+  # При push в ветку main
   push:
     branches: [ "main" ]
+  # При создании pull request в ветку main
   pull_request:
     branches: [ "main" ]
 
+# Определение задач (jobs) для выполнения
 jobs:
+  # Задача сборки
   build:
 
+    # Указывает, на какой ОС будет выполняться задача
     runs-on: ubuntu-latest
+    # Настройки стратегии выполнения
     strategy:
+      # Максимальное количество параллельных запусков
       max-parallel: 4
+      # Матрица версий Python для тестирования
       matrix:
         python-version: [3.7, 3.8, 3.9]
 
+    # Шаги выполнения задачи
     steps:
+    # Шаг 1: Получение кода из репозитория
     - uses: actions/checkout@v4
+    # Шаг 2: Настройка Python указанной версии
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    # Шаг 3: Установка зависимостей
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         cp env.example .env
+    # Шаг 4: Запуск тестов
     - name: Run Tests
       run: |
         python manage.py test
