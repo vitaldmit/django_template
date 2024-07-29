@@ -24,9 +24,10 @@ python -m pip install --upgrade pip
 git clone https://github.com/vitaldmit/django_template.git src
 cd src
 
-# Заменяем django_template на имя проекта
-find -type f -exec sed -i -e 's#django_template_project#${PROJECT_NAME}"_project"#g' {} \;
-mv django_template_project ${PROJECT_NAME}'_project'
+# Меняем название основной директории
+mv django_template_project/ "${PROJECT_NAME}_project"
+# Меняем все упоминания на свое имя
+find . -type f \( -name "*.py" -o -name "*.yml" \) -exec sed -i "s#django_template_project#"${PROJECT_NAME}_projecta"#gi"  {} \;
 
 # Удаляем лишнее
 rm contributors.md
@@ -38,7 +39,7 @@ git branch -M main
 ```
 
 ```bash
-# Адрес репозитория меняем на свой.
+# Адрес репозитория вручную меняем на свой.
 git remote add origin <YOUR_REPOSITORY>
 ```
 
@@ -83,7 +84,7 @@ systemctl restart sshd
 
 ### Создаем пользователя. Каждый проект это новый пользователь
 ```bash
-# Имя ему даем как название проекта
+# Вручную даем пользователю имя
 user=<PROJECT_NAME>
 ```
 
@@ -99,7 +100,7 @@ echo "$user":"$password" | chpasswd
 
 # Добавляем пользователя в группу docker
 # чтобы мог работать с контейнерами
-sudo usermod -aG docker $user # Пока под вопросом
+sudo usermod -aG docker $user
 ```
 
 
@@ -131,10 +132,23 @@ cd src
 
 
 ### Подготавливаем проект к запуску
-#### Есть два способа запустить проект:
-- С помощью `docker`. Запускаем команду `docker-compose up --build` или `docker-compose up -d`
-- Настроить непосредственно все службы на сервере: `Nginx`, `PostgreSQL`, `UWSGI` или `gunicorn`
+```bash
+cp env.example .env
+# Надо будет отредактировать `.env`
+nano .env
+```
 
+```bash
+pip install -r requirements.txt
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+#### Есть два способа запустить проект:
+- С помощью `Docker`. Запускаем команду `docker-compose up --build` или `docker-compose up -d`
+- Настроить непосредственно все службы на сервере: `Nginx`, `PostgreSQL`, `UWSGI` или `gunicorn`
 
 ## Структура проекта
 ```
