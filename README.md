@@ -28,7 +28,7 @@ cd src
 # Меняем название основной директории
 mv django_template_project/ "${PROJECT_NAME}_project"
 # Меняем все упоминания на свое имя
-find . -type f \( -name "*.py" -o -name "*.yml" \) -exec sed -i "s#django_template_project#"${PROJECT_NAME}_project"#gi" {} \;
+find . -type f \( -name "*.py" -o -name "*.yml" -o -name "*.conf" \) -exec sed -i "s#django_template_project#"${PROJECT_NAME}_project"#gi" {} \;
 
 # Удаляем лишнее
 rm contributors.md
@@ -89,7 +89,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt update
 # Install the latest version of Docker CE and containerd
-apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose docker-compose-plugin -y
+apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
 # Установим cсылку python на python3
 ln -s /usr/bin/python3 /usr/bin/python
@@ -173,41 +173,48 @@ python manage.py createsuperuser
 ```bash
 # Задаем доменное имя вручную
 domain_name="test.ru"
+```
+
+```bash
 # Заменим на наш домен в nginx.conf
-sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx/nginx.conf
+sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
 ```
 
 ### ❗ Есть два способа запустить проект:
 #### 1. С помощью `Docker`
 Для настройки Let's Encrypt выполним:
 ```bash
-sudo docker-compose up -d
-docker-compose run certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
+# Сначала останавливаем Nginx
+sudo lsof -i :80
+nginx -s quit
+# Запускаем контейнеры
+docker compose up -d
+docker compose run certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
 ```
 
-#### 2. С помощью традиционного метода
+#### 2. С помощью традиционного метода. Надо будет настривать из под root'а
 
 ##### Настраиваем Lets Encrypt
 ```bash
 # Получим сертификат, используя Certbot с плагином Nginx:
-sudo certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
+certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
 # Настроим автоматическое обновление сертификатов:
-sudo certbot renew --dry-run
+certbot renew --dry-run
 # Добавим задачу в crontab для регулярного обновления:
-sudo crontab -e
+crontab -e
 # 0 12 * * * /usr/bin/certbot renew --quiet
 ```
 
 ###### Настраиваем Nginx
 ```bash
 # Создаем ссылку на конфигурационный файл
-sudo ln -s /home/$user/src/configs/nginx/nginx.conf /etc/nginx/sites-enabled/default
+ln -s /home/$user/src/configs/nginx.conf /etc/nginx/sites-enabled
 # Проверяем работоспособность
-sudo nginx -t
+nginx -t
 # Перезапускаем Nginx
-sudo systemctl restart nginx
+systemctl restart nginx
 # Проверяем работоспособность
-sudo systemctl status nginx
+systemctl status nginx
 ```
 
 
