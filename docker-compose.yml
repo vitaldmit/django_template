@@ -54,6 +54,8 @@ services:
       - media_volume:/app/media
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    restart: unless-stopped
     # Зависимость от сервиса Django приложения
     depends_on:
       - web
@@ -76,7 +78,7 @@ volumes:
   media_volume:
 
 
-# Для мониторинга можно добавить Prometheus и Grafana в docker-compose.yml:
+# Для мониторинга можно добавить Prometheus и Grafana:
 #   prometheus:
 #     image: prom/prometheus
 #     volumes:

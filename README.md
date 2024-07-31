@@ -176,6 +176,9 @@ domain_name="test.ru"
 ```
 
 ```bash
+echo domain_name=${domain_name} >> ~/.bashrc
+source ~/.bashrc
+echo $domain_name
 # Заменим на наш домен в nginx.conf
 sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
 ```
@@ -184,12 +187,30 @@ sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
 #### 1. С помощью `Docker`
 Для настройки Let's Encrypt выполним:
 ```bash
-# Сначала останавливаем Nginx
-sudo lsof -i :80
+# Сначала останавливаем Nginx под root
 nginx -s quit
+
 # Запускаем контейнеры
-docker compose up -d
-docker compose run certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
+docker-compose up -d
+
+# Так как docker "чистый" надо получить сертификаты:
+# 1. Останвим контейнер с Nginx
+# 2. Запустим временный контейнер с простым веб-сервером для обработки запросов ACME challenge:
+docker run -d --name acme_challenge -p 80:80 -v ./certbot/www:/usr/share/nginx/html nginx:alpine
+# 3. Получим сертификат с помощью webroot метода:
+docker-compose run --rm --entrypoint "\
+  certbot certonly --webroot -w /var/www/certbot \
+  -d ${domain_name} \
+  --email info@${domain_name} \
+  --agree-tos \
+  --no-eff-email" certbot
+# 4.После успешного получения сертификата, остановим и удалим временный контейнер:
+docker stop acme_challenge && docker rm acme_challenge
+# 5. Запустим Nginx контейнер:
+docker-compose up -d nginx
+
+# Полезные команды для docker
+# docker compose down -v; docker system prune
 ```
 
 #### 2. С помощью традиционного метода. Надо будет настривать из под root'а
