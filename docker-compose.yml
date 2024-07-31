@@ -31,7 +31,7 @@ services:
   # Сервис для базы данных PostgreSQL
   db:
     # Использование официального образа PostgreSQL
-    image: postgres:13
+    image: postgres:latest
     # Монтирование volume для сохранения данных
     volumes:
       - postgres_data:/var/lib/postgresql/data/

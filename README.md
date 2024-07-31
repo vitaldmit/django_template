@@ -9,7 +9,7 @@
 ### Первым делом определяемся с именем проекта
 ```bash
 # Задаем название проекта вручную
-    PROJECT_NAME="test"
+PROJECT_NAME="test"
 ```
 
 ### Подгатавливаем локальное виртуальное окружение
@@ -25,6 +25,7 @@ python -m pip install --upgrade pip
 git clone https://github.com/vitaldmit/django_template.git src
 cd src
 
+# Меняем django_template_name на имя своего проекта
 # Меняем название основной директории
 mv django_template_project/ "${PROJECT_NAME}_project"
 # Меняем все упоминания на свое имя
@@ -133,7 +134,8 @@ sudo usermod -aG docker $user
 ```bash
 su - $user
 # От пользователя можно перейти в root командой `su -`
-
+```
+```bash
 # Создаем и активируем виртуальное окружение
 python3 -m venv venv
 source ~/venv/bin/activate
@@ -158,7 +160,7 @@ cd src
 ### Подготавливаем проект к запуску
 cp env.example .env
 # Надо будет отредактировать `.env`
-# Заменить DEBUG, SECRET_KEY ...
+# Заменить DEBUG, SECRET_KEY, ALLOWED_HOSTS ...
 nano .env
 ```
 
@@ -188,17 +190,18 @@ sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
 Для настройки Let's Encrypt выполним:
 ```bash
 # Сначала останавливаем Nginx под root
-nginx -s quit
+# nginx -s quit
 
 # Запускаем контейнеры
-docker-compose up -d
+docker compose up -d
 
 # Так как docker "чистый" надо получить сертификаты:
 # 1. Останвим контейнер с Nginx
+docker compose stop nginx
 # 2. Запустим временный контейнер с простым веб-сервером для обработки запросов ACME challenge:
 docker run -d --name acme_challenge -p 80:80 -v ./certbot/www:/usr/share/nginx/html nginx:alpine
 # 3. Получим сертификат с помощью webroot метода:
-docker-compose run --rm --entrypoint "\
+docker compose run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
   -d ${domain_name} \
   --email info@${domain_name} \
@@ -207,7 +210,7 @@ docker-compose run --rm --entrypoint "\
 # 4.После успешного получения сертификата, остановим и удалим временный контейнер:
 docker stop acme_challenge && docker rm acme_challenge
 # 5. Запустим Nginx контейнер:
-docker-compose up -d nginx
+docker compose up -d nginx
 
 # Полезные команды для docker
 # docker compose down -v; docker system prune
