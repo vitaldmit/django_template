@@ -183,6 +183,8 @@ source ~/.bashrc
 echo $domain_name
 # Заменим на наш домен в nginx.conf
 sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
+# Заменим путь для логирования в nginx.conf
+sed -i "s#<PROJECT_NAME>#"${PROJECT_NAME}"#gi" configs/nginx.conf
 ```
 
 ### ❗ Есть два способа запустить проект:
@@ -217,7 +219,10 @@ docker compose up -d nginx
 ```
 
 #### 2. С помощью традиционного метода. Надо будет настривать из под root'а
-
+```bash
+# Задаем доменное имя вручную
+domain_name="test.ru"
+```
 ##### Настраиваем Lets Encrypt
 ```bash
 # Получим сертификат, используя Certbot с плагином Nginx:
@@ -232,7 +237,7 @@ crontab -e
 ###### Настраиваем Nginx
 ```bash
 # Создаем ссылку на конфигурационный файл
-ln -s /home/$user/src/configs/nginx.conf /etc/nginx/sites-enabled
+ln -s /home/$user/src/configs/nginx.conf /etc/nginx/conf.d
 # Проверяем работоспособность
 nginx -t
 # Перезапускаем Nginx
