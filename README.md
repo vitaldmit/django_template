@@ -199,20 +199,20 @@ docker compose up -d
 
 # Так как docker "чистый" надо получить сертификаты:
 # 1. Останвим контейнер с Nginx
-docker compose stop nginx
+docker compose stop ${PROJECT_NAME}_nginx
 # 2. Запустим временный контейнер с простым веб-сервером для обработки запросов ACME challenge:
-docker run -d --name acme_challenge -p 80:80 -v ./certbot/www:/usr/share/nginx/html nginx:alpine
+docker run -d --name temp_acme_challenge -p 80:80 -v ./certbot/www:/usr/share/nginx/html nginx:alpine
 # 3. Получим сертификат с помощью webroot метода:
 docker compose run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
   -d ${domain_name} \
   --email info@${domain_name} \
   --agree-tos \
-  --no-eff-email" certbot
+  --no-eff-email" ${PROJECT_NAME}_certbot
 # 4.После успешного получения сертификата, остановим и удалим временный контейнер:
-docker stop acme_challenge && docker rm acme_challenge
+docker stop temp_acme_challenge && docker rm temp_acme_challenge
 # 5. Запустим Nginx контейнер:
-docker compose up -d nginx
+docker compose up -d ${PROJECT_NAME}_nginx
 
 # Полезные команды для docker
 # docker compose down -v; docker system prune

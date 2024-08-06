@@ -4,7 +4,7 @@ version: '3'
 # Определение сервисов
 services:
   # Сервис для Django приложения
-  web:
+  django_template_web:
     # Сборка образа из текущей директории
     build: .
     # Команда для запуска Django приложения через Gunicorn
@@ -16,7 +16,7 @@ services:
     # Монтирование локальной директории в контейнер
     volumes:
       - .:/app
-      - static_volume:/app/static_collected
+      - django_template_static_volume:/app/static_collected
     # Открытие порта 8000 внутри Docker network
     expose:
       - 8000
@@ -25,22 +25,22 @@ services:
       - .env
     # Зависимость от сервиса базы данных
     depends_on:
-      - db
-      - certbot
+      - django_template_db
+      - django_template_certbot
 
   # Сервис для базы данных PostgreSQL
-  db:
+  django_template_db:
     # Использование официального образа PostgreSQL
     image: postgres:latest
     # Монтирование volume для сохранения данных
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - django_template_postgres_data:/var/lib/postgresql/data/
     # Загрузка переменных окружения из файла .env
     env_file:
       - .env
 
   # Сервис для Nginx
-  nginx:
+  django_template_nginx:
     # Использование официального образа Nginx
     image: nginx:latest
     # Проброс порта 80 из контейнера на хост
@@ -50,18 +50,18 @@ services:
     # Монтирование конфигурационного файла Nginx и статических файлов
     volumes:
       - ./configs/nginx.conf:/etc/nginx/conf.d/django_template_project.conf
-      - static_volume:/app/static_collected
-      - media_volume:/app/media
+      - django_template_static_volume:/app/static_collected
+      - django_template_media_volume:/app/media
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     restart: unless-stopped
     # Зависимость от сервиса Django приложения
     depends_on:
-      - web
+      - django_template_web
 
   # Сервис Certbot для Let's Encrypt
-  certbot:
+  django_template_certbot:
     image: certbot/certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
@@ -71,11 +71,11 @@ services:
 # Определение volumes
 volumes:
   # Volume для хранения данных PostgreSQL
-  postgres_data:
+  django_template_postgres_data:
   # Volume для хранения статических файлов
-  static_volume:
+  django_template_static_volume:
   # Volume для хранения media файлов
-  media_volume:
+  django_template_media_volume:
 
 
 # Для мониторинга можно добавить Prometheus и Grafana:
