@@ -49,6 +49,7 @@ services:
       - 443:443
     # Монтирование конфигурационного файла Nginx и статических файлов
     volumes:
+        # Необходимо выбрать конфигурацию для NGINX - nginx.conf или nginx-ssl.conf
       - ./configs/nginx.conf:/etc/nginx/conf.d/django_template_project.conf
       - django_template_static_volume:/app/static_collected
       - django_template_media_volume:/app/media

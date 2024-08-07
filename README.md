@@ -3,13 +3,22 @@
 
 Этот проект находится на стадии разработки пока не будут выполнены все пункты в [**issue**](https://github.com/vitaldmit/django_template/issues/1)
 
-*Рекомендация: название проекта, имя пользователя, название репозитория должны быть одними и теми же*
+**Рекомендация: следующие имена должны быть одинаковыми:**
+- название проекта
+- имя пользователя
+- название репозитория
+
 
 ## ❶ 🏁 Начало. Подготавливаем проект локально.
 ### Первым делом определяемся с именем проекта
 ```bash
 # Задаем название проекта вручную
 PROJECT_NAME="test"
+```
+
+```bash
+# Задаем доменное имя вручную
+domain_name="test.ru"
 ```
 
 ### Подгатавливаем локальное виртуальное окружение
@@ -30,6 +39,14 @@ cd src
 mv django_template_project/ "${PROJECT_NAME}_project"
 # Меняем все упоминания на свое имя
 find . -type f \( -name "*.py" -o -name "*.yml" -o -name "*.conf" \) -exec sed -i "s#django_template_project#"${PROJECT_NAME}_project"#gi" {} \;
+find . -type f \( -name "*.yml" -o -name "*.conf" \) -exec sed -i "s#django_template#"${PROJECT_NAME}"#gi" {} \;
+
+# Надо еще заменить в env.example
+
+# Заменим на наш домен в nginx.conf
+sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf configs/nginx-ssl.conf
+# Заменим путь для логирования в nginx.conf
+sed -i "s#<PROJECT_NAME>#"${PROJECT_NAME}"#gi" configs/nginx.conf configs/nginx-ssl.conf
 
 # Удаляем лишнее
 rm contributors.md
@@ -73,11 +90,11 @@ python manage.py runserver
 apt update && apt upgrade -y
 
 # Устанавливаем необходимые пакеты
-apt install git python3 python3-pip python3-venv -y
+apt install git tree python3 python3-pip python3-venv -y
 apt install nginx postgresql postgresql-contrib uwsgi gunicorn -y
 apt install certbot python3-certbot-nginx -y
 
-# Установим официальный Docker
+# Установим **официальный** Docker
 # Add Docker's official GPG key:
 apt update
 apt install ca-certificates curl
@@ -116,7 +133,7 @@ user=<PROJECT_NAME>
 
 ```bash
 password=$(date +%s | sha256sum | base64 | head -c 5 ; echo)
-echo "$user = $password " >> .users && cat .users
+echo "$user - $password " >> .users && cat .users
 # -c "comment", -s "shell", -m "create the user's home directory" -U "create a group with the same name as the user", 
 useradd -c "$user" -s /bin/bash -m -U "$user"
 echo "$user":"$password" | chpasswd
@@ -135,19 +152,26 @@ sudo usermod -aG docker $user
 su - $user
 # От пользователя можно перейти в root командой `su -`
 ```
+
 ```bash
+# Задаем доменное имя вручную
+domain_name="test.ru"
+```
+
+```bash
+# Добавляем в конец файла .bashrc чтобы каждый раз при входе и выходе не набирать команды
+echo domain_name=${domain_name} >> ~/.bashrc
+echo PROJECT_NAME=$(whoami) >> .bashrc
+echo "source ~/venv/bin/activate" >> .bashrc
+echo "deactivate" >> .bash_logout
+source .bashrc
+
 # Создаем и активируем виртуальное окружение
 python3 -m venv venv
 source ~/venv/bin/activate
 
 # Обновляем pip
 python -m pip install --upgrade pip
-
-# Добавляем в конец файла .bashrc чтобы каждый раз при входе и выходе не набирать команды
-echo PROJECT_NAME=$(whoami) >> .bashrc
-echo "source ~/venv/bin/activate" >> .bashrc
-echo "deactivate" >> .bash_logout
-source .bashrc
 ```
 
 ```bash
@@ -159,32 +183,22 @@ git clone <YOUR_REPOSITORY> src
 cd src
 ### Подготавливаем проект к запуску
 cp env.example .env
-# Надо будет отредактировать `.env`
-# Заменить DEBUG, SECRET_KEY, ALLOWED_HOSTS ...
-nano .env
-```
 
-```bash
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py makemigrations main
-python manage.py migrate
-python manage.py createsuperuser
-```
+# Меняем DEBUG на False
+sed -i "s/DEBUG = True/DEBUG = False/" .env
 
-```bash
-# Задаем доменное имя вручную
-domain_name="test.ru"
-```
+# Заменяем SECRET_KEY
+generated_secret_key=$(python -c "import random; import string; print(''.join(random.SystemRandom().choice(string.ascii_letters + string.digits + '!@#$%^&*(-_=+)') for _ in range(50)))")
+sed -i "s/SECRET_KEY = 'your_secret_key'/SECRET_KEY = '${generated_secret_key}'/" .env
 
-```bash
-echo domain_name=${domain_name} >> ~/.bashrc
-source ~/.bashrc
-echo $domain_name
-# Заменим на наш домен в nginx.conf
-sed -i "s#<DOMAIN_NAME>#"${domain_name}"#gi" configs/nginx.conf
-# Заменим путь для логирования в nginx.conf
-sed -i "s#<PROJECT_NAME>#"${PROJECT_NAME}"#gi" configs/nginx.conf
+# Добавляем домен в ALLOWED_HOSTS
+sed -i "s/ALLOWED_HOSTS = \['127\.0\.0\.1', 'localhost'\]/ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '${domain_name}']/" .env
+
+# Меняем адрес базы данных на свой
+sed -i "s/django_template/${PROJECT_NAME}/" .env
+
+# Если надо будет еще что-то менять.
+# nano .env
 ```
 
 ### ❗ Есть два способа запустить проект:
@@ -192,6 +206,7 @@ sed -i "s#<PROJECT_NAME>#"${PROJECT_NAME}"#gi" configs/nginx.conf
 Для настройки Let's Encrypt выполним:
 ```bash
 # Сначала останавливаем Nginx под root
+# lsof -i :80
 # nginx -s quit
 
 # Запускаем контейнеры
@@ -214,15 +229,17 @@ docker stop temp_acme_challenge && docker rm temp_acme_challenge
 # 5. Запустим Nginx контейнер:
 docker compose up -d ${PROJECT_NAME}_nginx
 
+# Создаем суперпользователя
+docker exec -it src-${PROJECT_NAME}_web-1 python manage.py createsuperuser
+
 # Полезные команды для docker
+# docker exec -it <CONTAINER_NAME> /bin/bash
+# docker logs <CONTAINER_NAME>
+# docker inspect <CONTAINER_NAME>
 # docker compose down -v; docker system prune
 ```
 
 #### 2. С помощью традиционного метода. Надо будет настривать из под root'а
-```bash
-# Задаем доменное имя вручную
-domain_name="test.ru"
-```
 ##### Настраиваем Lets Encrypt
 ```bash
 # Получим сертификат, используя Certbot с плагином Nginx:
