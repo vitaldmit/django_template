@@ -63,7 +63,7 @@ git commit -m "First commit"
 git remote add origin https://github.com/<YOUR_USER_NAME>/${PROJECT_NAME}.git
 ```
 
-### Устанавливаем, настраиваем Django
+### Устанавливаем, настраиваем, запускаем Django
 ```bash
 cp env.example .env
 # Надо будет отредактировать `.env`
@@ -76,6 +76,7 @@ pip install -r requirements.txt
 python manage.py makemigrations main
 python manage.py migrate
 python manage.py createsuperuser
+```
 
 ```bash
 python manage.py test
