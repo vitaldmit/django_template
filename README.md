@@ -244,7 +244,7 @@ docker exec -it src-${PROJECT_NAME}_web-1 python manage.py createsuperuser
 ##### Настраиваем Lets Encrypt
 ```bash
 # Получим сертификат, используя Certbot с плагином Nginx:
-certbot certonly --webroot --webroot-path=/var/www/html --email "info@$domain_name" --agree-tos --no-eff-email -d $domain_name
+certbot certonly --webroot --webroot-path=/var/www/html --email "info@${domain_name}" --agree-tos --no-eff-email -d $domain_name
 # Настроим автоматическое обновление сертификатов:
 certbot renew --dry-run
 # Добавим задачу в crontab для регулярного обновления:
@@ -267,7 +267,7 @@ systemctl status nginx
 
 #### Настраиваем PostgreSQL
 ```bash
-# Загружаем переменные из файла .env
+# Загружаем переменные из файла .env. Пока это не работает. Надо подправить
 if [ -f .env ]; then
     export $(cat .env | grep -v '#' | awk '/=/ {print $1}')
 else
