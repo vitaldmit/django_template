@@ -113,16 +113,19 @@ apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-co
 # Установим cсылку python на python3
 ln -s /usr/bin/python3 /usr/bin/python
 
-# Настраиваем ssh
+# Настраиваем SSH
 nano /etc/ssh/sshd_config
 # Меняем sshd порт на 22222 или любой другой
-# Добавляем в конец файла ClientAliveInterval 30
 
-# Можно отключить вход из под root'а, но это по желанию
+# Можно отключить вход из под root'а
 # PermitRootLogin no
 ```
 
 ```bash
+# Добавляем чтобы не отваливалось соединение
+echo "ClientAliveInterval 60" >> /etc/ssh/sshd_config
+echo "ClientAliveCountMax 3" >> /etc/ssh/sshd_config
+
 systemctl restart sshd
 ```
 
