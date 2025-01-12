@@ -312,3 +312,68 @@ echo "База данных $POSTGRES_DB и пользователь $POSTGRES_U
         |- ...
     |- ...
 ```
+
+## Contributing
+1. Перейдите по адресу https://github.com/vitaldmit/django_template.
+2. Нажмите Fork, расположенный в правом верхнем углу страницы.
+3. Снимите флажок «Копировать только ветку dev».
+4. Нажмите кнопку Create fork.
+
+Ваш форкнутый репозиторий CPython будет создан по адресу https://github.com/USERNAME/django_template.
+
+```bash
+# Склонируем репозиторий
+git clone git@github.com:<username>/django_template.git
+```
+```bash
+cd django_template
+# Настрааиваем upstream репозиторий
+git remote add upstream https://github.com/vitaldmit/django_template
+# Настраиваем git для извлечения main из upstream remote
+git config --local branch.dev.remote upstream
+# Поскольку никогда не следует пытаться отправлять изменения в upstream, 
+# настроим git так, чтобы он всегда отправлял изменения в источник
+git remote set-url --push upstream git@github.com:<username>/django_template.git
+```
+
+```bash
+# Проверяем удаленные репозитории
+git remote -v
+
+# Вывод должен быть таким:
+origin git@github.com:<username>/django_template.git (fetch)
+origin git@github.com:<username>/django_template.git (push)
+upstream https://github.com/vitaldmit/django_template (fetch)
+upstream git@github.com:<username>/django_template.git (push)
+```
+
+```bash
+git config user.name "Ваше имя"
+git config user.email your.email@example.com
+```
+
+Чтобы начать работу над проблемой, создайте новую ветку и переключитесь на нее.
+```bash
+git switch -c <branch-name> dev
+```
+
+Выполните необходимые изменения, добавьте их в коммиты и отправьте их в свой форк.
+```bash
+git push origin <branch-name>
+```
+
+Откройте запрос на слияние. Перейдите на https://github.com/vitaldmit/django_template.
+
+1. Нажмите кнопку New pull request.
+2. Нажмите ссылку Compare across forks.
+3. Выберите базовый репозиторий: vitaldmit/django_template и базовую ветку: dev.
+4. Выберите головной репозиторий: <username>/django_template и головную ветку: ветку, содержащую ваши изменения.
+5. Нажмите кнопку Create pull request.
+
+```bash
+git switch -c <branch-name> dev
+# Удаляем локльную ветку
+git branch -D <branch-name>
+# Удаляем удаленную ветку
+git push origin -d <branch-name>
+```
