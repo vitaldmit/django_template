@@ -327,8 +327,12 @@ git clone git@github.com:<username>/django_template.git
 ```
 ```bash
 cd django_template
+# Настрааиваем upstream репозиторий
 git remote add upstream https://github.com/vitaldmit/django_template
+# Настраиваем git для извлечения main из upstream remote
 git config --local branch.dev.remote upstream
+# Поскольку никогда не следует пытаться отправлять изменения в upstream, 
+# настроим git так, чтобы он всегда отправлял изменения в источник
 git remote set-url --push upstream git@github.com:<username>/django_template.git
 ```
 
@@ -362,6 +366,14 @@ git push origin <branch-name>
 
 1. Нажмите кнопку New pull request.
 2. Нажмите ссылку Compare across forks.
-3. Выберите базовый репозиторий: vitaldmit/django_template и базовую ветку: main.
+3. Выберите базовый репозиторий: vitaldmit/django_template и базовую ветку: dev.
 4. Выберите головной репозиторий: <username>/django_template и головную ветку: ветку, содержащую ваши изменения.
 5. Нажмите кнопку Create pull request.
+
+```bash
+git switch -c <branch-name> dev
+# Удаляем локльную ветку
+git branch -D <branch-name>
+# Удаляем удаленную ветку
+git push origin -d <branch-name>
+```
